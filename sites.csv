@@ -1,0 +1,8 @@
+SiteID,SiteName,CountryID,MineralID,Latitude,Longitude,Production_tonnes
+1,Tenke Mine,1,1,-10.6027,26.1347,170000
+2,Mutoshi Mine,1,1,-10.6778,25.5353,12000
+3,Kamoto Mine,1,1,-10.7217,25.3964,30000
+4,Balama Mine,3,3,-13.3486,38.5697,96000
+5,N'Chwaning Mines,2,4,-27.1307,22.8588,7300000
+6,Nsuta Mine,5,4,5.2833,-1.9667,818000
+7,Arcadia Mine,4,2,-17.7735,31.4095,769086

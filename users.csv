@@ -1,0 +1,4 @@
+UserID,Username,RoleID,Email
+1,admin01,1,admin@example.com
+2,investor01,2,investor@example.com
+3,research01,3,research@example.com

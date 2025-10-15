@@ -1,0 +1,4 @@
+RoleID,RoleName,PermissionsNote
+1,Administrator,"Full access (manage users, edit data, view dashboards)"
+2,Investor,"View dashboards, export reports"
+3,Researcher,"View data and visualizations, download CSVs"

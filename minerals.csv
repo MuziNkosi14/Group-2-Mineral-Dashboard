@@ -1,0 +1,5 @@
+MineralID,MineralName,Type,MarketPrice_USD_per_t
+1,Cobalt,Metal,39000
+2,Lithium,Metal,10000
+3,Graphite,Non-metal,1200
+4,Manganese,Metal,210
