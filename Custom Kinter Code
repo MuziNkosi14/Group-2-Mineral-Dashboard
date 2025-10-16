@@ -1,0 +1,165 @@
+from IPython.display import HTML
+import tkinter as tk
+import customtkinter as ctk
+from tkinter import messagebox
+import csv
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import webbrowser
+import os
+
+class CriticalMineralsApp:
+    def __init__(self, root):
+        self.window = root
+        self.window.geometry("900x700")
+        self.window.title("African Critical Minerals Database")
+        
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
+        
+        self.create_sample_data()
+        self.create_login_frame()
+
+    def clear_frame(self):
+        for widget in self.window.winfo_children():
+            widget.destroy()
+
+    def create_login_frame(self):
+        def create_login_frame(self):
+        self.clear_frame()
+        
+        ctk.CTkLabel(self.window, text="African Critical Minerals Database", 
+                   font=("Arial", 28, "bold"), text_color="lightgreen").pack(pady=20)
+        
+        form_frame = ctk.CTkFrame(self.window)
+        form_frame.pack(pady=20, padx=100)
+        
+        self.username_entry = ctk.CTkEntry(form_frame, placeholder_text="Username", width=250, height=35)
+        self.username_entry.pack(pady=10, padx=20)
+        
+        self.password_entry = ctk.CTkEntry(form_frame, placeholder_text="Password", show='*', width=250, height=35)
+        self.password_entry.pack(pady=10, padx=20)
+
+        button_frame = ctk.CTkFrame(self.window, fg_color="transparent")
+        button_frame.pack(pady=10)
+        
+        ctk.CTkButton(button_frame, text="Login", command=self.check_login, width=200, height=35).pack(pady=10)
+        ctk.CTkButton(button_frame, text="Sign in", command=self.create_registration_frame, width=200, height=35).pack(pady=5)
+
+        signup_text_frame = ctk.CTkFrame(self.window, fg_color="transparent")
+        signup_text_frame.pack(pady=10)
+        
+        ctk.CTkLabel(signup_text_frame, text="Don't have an account? Click 'Sign in' to register", 
+                   font=("Arial", 12), text_color="lightgray").pack()
+
+    def create_registration_frame(self):
+        self.clear_frame()
+        
+        ctk.CTkLabel(self.window, text="Register New Account", font=("Arial", 25, "bold")).pack(pady=30)
+
+        form_frame = ctk.CTkFrame(self.window)
+        form_frame.pack(pady=20, padx=100)
+
+        self.new_username_entry = ctk.CTkEntry(form_frame, placeholder_text="New Username", width=250, height=35)
+        self.new_username_entry.pack(pady=15, padx=20)
+
+        self.new_password_entry = ctk.CTkEntry(form_frame, placeholder_text="New Password", show='*', width=250, height=35)
+        self.new_password_entry.pack(pady=15, padx=20)
+
+        ctk.CTkLabel(form_frame, text="Select Role:", font=("Arial", 12)).pack(pady=(15, 5))
+        self.role_var = ctk.StringVar(value="Select your role")
+        self.role_dropdown = ctk.CTkComboBox(form_frame, 
+                                           values=["Investor", "Researcher", "Admin"],
+                                           variable=self.role_var,
+                                           width=250, 
+                                           height=35)
+        self.role_dropdown.pack(pady=5, padx=20)
+
+        button_frame = ctk.CTkFrame(self.window, fg_color="transparent")
+        button_frame.pack(pady=20)
+        
+        ctk.CTkButton(button_frame, text="Register", command=self.register_user, width=200, height=35).pack(pady=10)
+        ctk.CTkButton(button_frame, text="Back to Login", command=self.create_login_frame, width=200, height=35).pack(pady=5)
+
+    def register_user(self):
+        username = self.new_username_entry.get()
+        password = self.new_password_entry.get()
+        role = self.role_var.get()
+
+        if username and password and role != "Select your role":
+            with open('Users_.csv', 'a', newline='') as file:
+                csv.writer(file).writerow([username, password, role])
+            messagebox.showinfo("Success", "User registered successfully!")
+            self.create_login_frame()
+        else:
+            messagebox.showerror("Error", "All fields are required and please select a valid role!")
+
+    def check_login(self):
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+
+        try:
+            with open('Users_.csv', 'r') as file:
+                users = [line.strip().split(',') for line in file.readlines()]
+                user_found = False
+                for user in users:
+                    if len(user) >= 2 and user[0] == username and user[1] == password:
+                        user_found = True
+                        break
+                
+                if user_found:
+                    self.create_main_menu()
+                else:
+                    messagebox.showerror("Login Failed", "Invalid credentials!")
+        except FileNotFoundError:
+            messagebox.showinfo("Info", "No users found. Please register first.")
+            self.create_registration_frame()
+
+    def create_main_menu(self):
+        self.clear_frame()
+        
+        header_frame = ctk.CTkFrame(self.window)
+        header_frame.pack(fill="x", padx=20, pady=20)
+        
+        ctk.CTkLabel(header_frame, text="African Critical Minerals Dashboard", 
+                   font=("Arial", 28, "bold"), text_color="yellow").pack(pady=20)
+
+        menu_frame = ctk.CTkFrame(self.window)
+        menu_frame.pack(fill="both", expand=True, padx=50, pady=30)
+        role = self.role_var.get()
+        buttons = [
+            ("Mineral Database", self.mineral_database),
+            ("Geographical Data", self.geographical_data),
+            ("Country Profile", self.country_profile),
+            ("Interactive Charts", self.interactive_charts)
+        ]
+        if role == "Admin":
+            ctk.CTkButton(menu_frame, text="Mineral Database", command=self.mineral_database, width=400, height=50, font=("Arial", 16, "bold")).pack(pady=10)
+            ctk.CTkButton(menu_frame, text="Geographical Data", command=self.geographical_data, width=400, height=50, font=("Arial", 16, "bold")).pack(pady=10)
+            ctk.CTkButton(menu_frame, text="Country Profile", command=self.country_profile, width=400, height=50, font=("Arial", 16, "bold")).pack(pady=10)
+            ctk.CTkButton(menu_frame, text="Interactive Charts", command=self.interactive_charts, width=400, height=50, font=("Arial", 16, "bold")).pack(pady=10)
+            
+            
+        #elif role == "User":
+           
+       # elif role == "Guest":
+           
+        #for text, command in buttons:
+        #    btn = ctk.CTkButton(menu_frame, text=text, command=command, width=400, height=50, font=("Arial", 16, "bold"))
+        #    btn.pack(pady=15)
+
+        ctk.CTkButton(self.window, text="Logout", command=self.create_login_frame, width=200, height=40).pack(pady=20)
+
+    def create_sample_data(self):
+        self.minerals_df = pd.DataFrame({
+            'MineralName': ['Cobalt', 'Lithium', 'Graphite', 'Manganese'],
+            'MarketPriceUSD_per_tonne': [52000, 70000, 800, 2200]
+        })
+        
+        self.countries_df = pd.DataFrame({
+            'CountryName': ['DRC (Congo)', 'South Africa', 'Mozambique', 'Namibia'],
+            'Capital': ['Kinshasa', 'Pretoria', 'Maputo', 'Windhoek'],
+            'GDP_BillionUSD': [55, 350, 20, 15],
+            'MiningRevenue_BillionUSD': [12, 25, 4, 3]
+        })
