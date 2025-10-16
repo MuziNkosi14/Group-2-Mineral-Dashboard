@@ -162,4 +162,116 @@ class CriticalMineralsApp:
             'Capital': ['Kinshasa', 'Pretoria', 'Maputo', 'Windhoek'],
             'GDP_BillionUSD': [55, 350, 20, 15],
             'MiningRevenue_BillionUSD': [12, 25, 4, 3]
-        })
+   def create_back_button(self):
+        ctk.CTkButton(self.window, text="← Back to Main Menu", command=self.create_main_menu, width=200, height=40).pack(pady=10)
+
+    def mineral_database(self):
+        self.clear_frame()
+        ctk.CTkLabel(self.window, text="Mineral Database", font=("Arial", 28, "bold")).pack(pady=20)
+
+        scroll_frame = ctk.CTkScrollableFrame(self.window)
+        scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        for _, mineral in self.minerals_df.iterrows():
+            frame = ctk.CTkFrame(scroll_frame)
+            frame.pack(fill="x", pady=5, padx=10)
+            ctk.CTkLabel(frame, text=f"🔹 {mineral['MineralName']}", font=("Arial", 16, "bold")).pack(anchor="w")
+            ctk.CTkLabel(frame, text=f"Price: ${mineral['MarketPriceUSD_per_tonne']:,.0f}/tonne", text_color="yellow").pack(anchor="w")
+        
+        self.create_back_button()
+
+    def geographical_data(self):
+        self.clear_frame()
+        ctk.CTkLabel(self.window, text="Geographical Data", font=("Arial", 28, "bold")).pack(pady=20)
+
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>African Mining Sites</title>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+            <style>#map { height: 500px; width: 100%; }</style>
+        </head>
+        <body>
+            <div id="map"></div>
+            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+            <script>
+                var map = L.map('map').setView([-15, 25], 4);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+                L.marker([-10.7167, 25.4667]).addTo(map).bindPopup('<b>Kolwezi Mine</b><br>Cobalt<br>Production: 100,000 tonnes');
+                L.marker([-33.8667, 116.0667]).addTo(map).bindPopup('<b>Greenbushes Lithium</b><br>Lithium<br>Production: 120,000 tonnes');
+                L.marker([-13.3333, 38.7667]).addTo(map).bindPopup('<b>Balama Graphite</b><br>Graphite<br>Production: 50,000 tonnes');
+                L.marker([-27.0833, 22.95]).addTo(map).bindPopup('<b>Kalahari Manganese</b><br>Manganese<br>Production: 200,000 tonnes');
+            </script>
+        </body>
+        </html>
+        """
+
+        map_file = "mining_map.html"
+        with open(map_file, "w") as f:
+            f.write(html_content)
+
+        ctk.CTkButton(self.window, text="🗺️ Open Interactive Map in Browser", 
+                     command=lambda: webbrowser.open(f"file://{os.path.abspath(map_file)}"),
+                     width=300, height=40, font=("Arial", 14)).pack(pady=20)
+
+        sites_frame = ctk.CTkFrame(self.window)
+        sites_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        sites = [
+            "Kolwezi Mine - Cobalt - 100,000 tonnes",
+            "Greenbushes Lithium - Lithium - 120,000 tonnes", 
+            "Balama Graphite - Graphite - 50,000 tonnes",
+            "Kalahari Manganese - Manganese - 200,000 tonnes"
+        ]
+        
+        for site in sites:
+            ctk.CTkLabel(sites_frame, text=site, font=("Arial", 12)).pack(anchor="w", pady=5)
+        
+        self.create_back_button()
+
+    def country_profile(self):
+        self.clear_frame()
+        ctk.CTkLabel(self.window, text="Country Profiles", font=("Arial", 28, "bold")).pack(pady=20)
+
+        tabview = ctk.CTkTabview(self.window)
+        tabview.pack(fill="both", expand=True, padx=20, pady=10)
+        
+        for country in self.countries_df['CountryName']:
+            tab = tabview.add(country)
+            country_data = self.countries_df[self.countries_df['CountryName'] == country].iloc[0]
+            
+            info_text = f"""
+            Capital: {country_data['Capital']}
+            GDP: ${country_data['GDP_BillionUSD']} billion
+            Mining Revenue: ${country_data['MiningRevenue_BillionUSD']} billion
+            """
+            
+            ctk.CTkLabel(tab, text=info_text, font=("Arial", 14), justify="left").pack(pady=20)
+        
+        self.create_back_button()
+
+    def interactive_charts(self):
+        self.clear_frame()
+        ctk.CTkLabel(self.window, text="Interactive Charts", font=("Arial", 28, "bold")).pack(pady=20)
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        self.minerals_df.plot.bar(x='MineralName', y='MarketPriceUSD_per_tonne', ax=ax, legend=False, color=['blue', 'green', 'black', 'orange'])
+        ax.set_title('Mineral Prices (USD/tonne)')
+        
+        canvas = FigureCanvasTkAgg(fig, self.window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(fill="both", expand=True, padx=20, pady=10)
+        
+        self.create_back_button()
+
+def run_app():
+    root = ctk.CTk()
+    app = CriticalMineralsApp(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    run_app()
+     })
+
+
